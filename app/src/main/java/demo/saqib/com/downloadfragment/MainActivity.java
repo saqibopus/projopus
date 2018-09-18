@@ -9,6 +9,7 @@ import android.os.Bundle;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import demo.saqib.com.downloadfragment.SongList.SongListActivity;
 import demo.saqib.com.downloadfragment.download.DownloadActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,14 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         System.out.println("----**start");
-        try{
-            Intent i =new Intent(MainActivity.this,DownloadActivity.class);
-            startActivity(i);
 
-        }catch (Exception e){
-            System.out.println("----**Excepton");
-        }
-        System.out.println("----**End");
     }
 
     @OnClick(R.id.btDownload)
@@ -34,4 +28,11 @@ public class MainActivity extends AppCompatActivity {
         Intent i =new Intent(MainActivity.this,DownloadActivity.class);
         startActivity(i);
     }
+    @OnClick(R.id.btSongList)
+    public void songList(){
+        Intent i =new Intent(MainActivity.this,SongListActivity.class);
+        startActivity(i);
+    }
+
+
 }

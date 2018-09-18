@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:padding="5dp"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/imgDownload"
+            android:src="@drawable/ic_download"
+            android:layout_width="0dp"
+            android:layout_weight="20"
+            android:layout_height="48dp" />
+        <TextView
+            android:id="@+id/tvSongName"
+            android:layout_weight="60"
+            android:text="This is text"
+            android:gravity="left"
+            android:layout_gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvDownloaded"
+            android:layout_width="0dp"
+            android:layout_weight="20"
+            android:gravity="left"
+            android:text="true"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>
