@@ -16,8 +16,9 @@ import demo.saqib.com.downloadfragment.songdb.Crud.CrudSongs;
 import demo.saqib.com.downloadfragment.songdb.Tables.SavedSongList;
 
 public class SongListActivity extends AppCompatActivity implements CrudSongs.CRUDOperationListner {
+
     @BindView(R.id.recycler_view)
-     RecyclerView recyclerView;
+    RecyclerView recyclerView;
     private SongListAdapter adapter;
     private CrudSongs crudSongs;
 
@@ -45,7 +46,6 @@ public class SongListActivity extends AppCompatActivity implements CrudSongs.CRU
             getSongData();
         }catch (Exception e){
             Logs.p("get all  song failed");
-
         }
 
 
