@@ -1,12 +1,9 @@
 package demo.saqib.com.downloadfragment;
 
-import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import demo.saqib.com.downloadfragment.SongList.SongListActivity;
@@ -34,5 +31,14 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    private void playSong(){
+        MediaPlayer mp=new MediaPlayer();
+        try{
+            mp.setDataSource("/sdcard/Music/maine.mp3");//Write your location here
+            mp.prepare();
+            mp.start();
+
+        }catch(Exception e){e.printStackTrace();}
+    }
 
 }

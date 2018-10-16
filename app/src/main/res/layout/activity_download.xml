@@ -81,5 +81,11 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="28dp"
             android:text="StopActivity" />
+
+        <Button
+            android:id="@+id/btPlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Play" />
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -1,5 +1,7 @@
 package demo.saqib.com.downloadfragment.download;
 
+import android.content.res.AssetManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -19,12 +21,26 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Key;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import demo.saqib.com.downloadfragment.Helpers.Logs;
 import demo.saqib.com.downloadfragment.R;
 
 public class DownloadActivity extends AppCompatActivity {
@@ -53,11 +69,11 @@ public class DownloadActivity extends AppCompatActivity {
 
 
 
-        if (checkPermission()) {
+       /* if (checkPermission()) {
             new GetListOfFiles().execute("");
         } else {
             requestPermission();
-        }
+        }*/
 
 
 
@@ -80,6 +96,10 @@ public class DownloadActivity extends AppCompatActivity {
         }
     }
 
+    @OnClick(R.id.btPlay)
+    public void play(){
+        decodeFile();
+    }
     @OnClick(R.id.btStopActivity)
     public void stopActivity() {
         DownloadActivity.this.finish();
@@ -177,6 +197,103 @@ public class DownloadActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         System.out.println("----** onStop");
+
+
+
+    }
+    public static byte[] decodeFile(SecretKey yourKey, byte[] fileData)
+            throws Exception {
+        String algorithm = "AES";
+        byte[] decrypted = null;
+        byte[] data = SongList.KEY.getBytes("UTF-8");
+        Logs.p("decodeFile : Key : "+data);
+        SecretKeySpec skeySpec = new SecretKeySpec(data, 0, data.length, algorithm);
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(new byte[cipher.getBlockSize()]));
+        decrypted = cipher.doFinal(fileData);
+        Logs.p("decodeFile : Data : "+decrypted);
+        return decrypted;
+    }
+
+    void decodeFile() {
+
+        try {
+            byte[] decodedData = decodeFile(null, readFile());
+            // String str = new String(decodedData);
+            //Logs.p("DECODED FILE CONTENTS : " + decodedData);
+            //playMp3(decodedData);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public byte[] readFile() {
+        byte[] contents = null;
+
+        /*File file = new File(Environment.getExternalStorageDirectory()
+                + File.separator, encryptedFileName);*/
+        File outputFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/"+SongList.DIRECTORY_NAME+"/", SongList.song1_ID+".mp3".trim());
+        int size = (int) outputFile.length();
+        contents = new byte[size];
+        try {
+            BufferedInputStream buf = new BufferedInputStream(
+                    new FileInputStream(outputFile));
+            try {
+                buf.read(contents);
+                buf.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return contents;
+    }
+
+    public byte[] getAudioFile() throws FileNotFoundException
+    {
+        byte[] audio_data = null;
+        byte[] inarry = null;
+        AssetManager am = getAssets();
+        try {
+            InputStream is = am.open("Sleep Away.mp3"); // use recorded file instead of getting file from assets folder.
+            int length = is.available();
+            audio_data = new byte[length];
+            int bytesRead;
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            while ((bytesRead = is.read(audio_data)) != -1) {
+                output.write(audio_data, 0, bytesRead);
+            }
+            inarry = output.toByteArray();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return inarry;
+
+    }
+
+    private void playMp3(byte[] mp3SoundByteArray) {
+
+        try {
+            // create temp file that will hold byte array
+            File tempMp3 = File.createTempFile("kurchina", "mp3", getCacheDir());
+            tempMp3.deleteOnExit();
+            FileOutputStream fos = new FileOutputStream(tempMp3);
+            fos.write(mp3SoundByteArray);
+            fos.close();
+            // Tried reusing instance of media player
+            // but that resulted in system crashes...
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            FileInputStream fis = new FileInputStream(tempMp3);
+            mediaPlayer.setDataSource(fis.getFD());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+
+        }
 
     }
 }

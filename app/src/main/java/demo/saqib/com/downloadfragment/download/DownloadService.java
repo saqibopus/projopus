@@ -16,11 +16,23 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import demo.saqib.com.downloadfragment.Helpers.Logs;
 import demo.saqib.com.downloadfragment.R;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -28,7 +40,9 @@ import retrofit2.Retrofit;
 
 public class DownloadService extends IntentService {
 
-
+    private String encryptedFileName = "encrypted_Audio.mp3";
+    static SecretKey yourKey = null;
+    private static String algorithm = "AES";
     public DownloadService() {
         super("Download Service");
     }
@@ -60,6 +74,9 @@ public class DownloadService extends IntentService {
         try{
             songId = intent.getStringExtra("id");
             songUrl = intent.getStringExtra("url");
+
+            Logs.p("song id : "+songId);
+            Logs.p("song url : "+songUrl);
         }catch (Exception e){
             System.out.println("----** No song ID URL found");
         }
@@ -96,8 +113,9 @@ public class DownloadService extends IntentService {
         byte data[] = new byte[1024 * 4];
         long fileSize = body.contentLength();
         InputStream bis = new BufferedInputStream(body.byteStream(), 1024 * 8);
-        File outputFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/"+SongList.DIRECTORY_NAME+"/", songId);
+        File outputFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/"+SongList.DIRECTORY_NAME+"/", songId+".mp3".trim());
         OutputStream output = new FileOutputStream(outputFile);
+
         long total = 0;
         long startTime = System.currentTimeMillis();
         int timeCount = 1;
@@ -122,7 +140,18 @@ public class DownloadService extends IntentService {
                 timeCount++;
             }
 
-            output.write(data, 0, count);
+            byte[] filesBytes =null;
+            try {
+                yourKey = generateKey();
+                filesBytes = encodeFile(yourKey,data);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            output.write(filesBytes, 0, count);
+
         }
         onDownloadComplete();
         output.flush();
@@ -168,5 +197,47 @@ public class DownloadService extends IntentService {
             jalsoDir.mkdirs();
         else
             System.out.println("----**error "+directoryName+" already exists");
+    }
+
+    /*void saveFile(File filee) {
+        try {
+            File file = new File(Environment.getExternalStorageDirectory() + File.separator, encryptedFileName);
+
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+            yourKey = generateKey();
+            byte[] filesBytes = encodeFile(yourKey, );
+            bos.write(filesBytes);
+            bos.flush();
+            bos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }*/
+
+    public static SecretKey generateKey() throws NoSuchAlgorithmException {
+        // Generate a 256-bit key
+        final int outputKeyLength = 256;
+        SecureRandom secureRandom = new SecureRandom();
+        // Do *not* seed secureRandom! Automatically seeded from system entropy.
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(outputKeyLength, secureRandom);
+        yourKey = keyGenerator.generateKey();
+        return yourKey;
+    }
+    public static byte[] encodeFile(SecretKey yourKey, byte[] fileData)
+            throws Exception {
+        byte[] encrypted = null;
+        //byte[] data = yourKey.getEncoded();
+        byte[] data = SongList.KEY.getBytes("UTF-8");
+        SecretKeySpec skeySpec = new SecretKeySpec(data, 0, data.length, algorithm);
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(
+                new byte[cipher.getBlockSize()]));
+        encrypted = cipher.doFinal(fileData);
+        return encrypted;
     }
 }

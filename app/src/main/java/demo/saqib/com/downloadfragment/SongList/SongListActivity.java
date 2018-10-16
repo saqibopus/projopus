@@ -36,8 +36,8 @@ public class SongListActivity extends AppCompatActivity implements CrudSongs.CRU
 
         try{
             saveSong(song);
-            saveSong(song1);
-            saveSong(song2);
+            //saveSong(song1);
+            //saveSong(song2);
         }catch (Exception e){
             Logs.p("Save song failed");
         }
