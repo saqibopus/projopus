@@ -42,6 +42,7 @@ import butterknife.OnClick;
 
 import demo.saqib.com.downloadfragment.Helpers.Logs;
 import demo.saqib.com.downloadfragment.R;
+import demo.saqib.com.downloadfragment.playsong.PlaySongActivity;
 
 public class DownloadActivity extends AppCompatActivity {
 
@@ -98,7 +99,10 @@ public class DownloadActivity extends AppCompatActivity {
 
     @OnClick(R.id.btPlay)
     public void play(){
-        decodeFile();
+        //decodeFile();
+        Intent intent = new Intent(DownloadActivity.this, PlaySongActivity.class);
+        startActivity(intent);
+
     }
     @OnClick(R.id.btStopActivity)
     public void stopActivity() {
@@ -205,7 +209,7 @@ public class DownloadActivity extends AppCompatActivity {
             throws Exception {
         String algorithm = "AES";
         byte[] decrypted = null;
-        byte[] data = SongList.KEY.getBytes("UTF-8");
+        byte[] data = SongList.getKey();
         Logs.p("decodeFile : Key : "+data);
         SecretKeySpec skeySpec = new SecretKeySpec(data, 0, data.length, algorithm);
         Cipher cipher = Cipher.getInstance(algorithm);
